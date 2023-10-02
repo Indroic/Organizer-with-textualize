@@ -48,12 +48,11 @@ class Main(App):
                 
         
         yield Footer()
-    @on(Button.Pressed)    
+    @on(Button.Pressed, "#organize")    
     def on_organize(self, event):
-        if event.label == "organize":
-            directory = self.query_one("#directory_input", Input).value
-            filter = self.query_one("#filters_select", Select).value
-            FileCollector(directory, filter).move()
+        directory = self.query_one("#directory_input", Input).value
+        filter = self.query_one("#filters_select", Select).value
+        FileCollector(directory, filter).move()
 
             
             
