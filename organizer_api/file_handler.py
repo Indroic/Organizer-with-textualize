@@ -191,7 +191,6 @@ class FileCollector:
     def files(self) -> List[File]:
         return self.filter_files()
     
-
 def all_filters() -> List[Filter] | List:
     options = Config()
     filters_config = options.get_filters()
