@@ -77,10 +77,13 @@ class File:
         self.path = path
         self.name = name
         self.extension = extension
+        self.contador = 1
 
     def move(self, filter: Filter, actual_path) -> bool:
         actual = os.path.join(actual_path, filter.dir_output)
         
+        self.verify_exists(actual)
+            
         if pathlib.Path(filter.dir_output).is_absolute() == True:
             if not os.path.isdir(filter.dir_output):
                 if not os.path.exists(filter.dir_output):    
@@ -89,14 +92,12 @@ class File:
                 else:
                     os.makedirs(filter.dir_output + "(organized)", exist_ok=True)
                     
-                    shutil.move(self.path, filter.dir_output + "(organized)")
+                    shutil.move(os.path.join(self.path, self.name), filter.dir_output + "(organized)")
                     
                     return True
                 
-                    
-            shutil.move(self.path, filter.dir_output)
             
-            return True
+            shutil.move(os.path.join(self.path, self.name), filter.dir_output)
         
         else:
             if not os.path.isdir(actual):
@@ -106,14 +107,30 @@ class File:
                 else:
                     os.makedirs(actual + "(organized)", exist_ok=True)
                     
-                    shutil.move(self.path, actual + "(organized)")
-                    
-                    return True
+                    shutil.move(os.path.join(self.path, self.name), filter.dir_output + "(organized)")
                 
-                    
-        shutil.move(self.path, actual)
+        
+        shutil.move(os.path.join(self.path, self.name), actual)
             
         return True
+    def verify_exists(self, path:str) -> bool:
+        if os.path.exists(os.path.join(self.path, self.name)):
+            original_name, extension = os.path.splitext(self.name)
+            contador = 1
+            before_name = original_name.split(" ")[0]
+            nuevo_nombre = f"{before_name} ({contador}){extension}"
+            while True:
+                if os.path.exists(os.path.join(path, nuevo_nombre)):
+                    nuevo_nombre = f"{before_name} ({contador}){extension}"
+                    contador += 1
+                    continue
+                else:
+                    break
+            self.name = nuevo_nombre
+            os.rename(os.path.join(self.path, original_name + extension), os.path.join(self.path, self.name))
+            
+            return True
+        
 
     def delete(self):
         os.remove(os.path.join(self.path))
@@ -159,7 +176,7 @@ class FileCollector:
                 if entry.is_file():
                     for ext in self.filter.extensions:
                         if entry.name.split(".")[-1] == ext:
-                            list_files.append(File(entry.path, entry.name, entry.name.split(".")[-1]))
+                            list_files.append(File(os.path.dirname(entry.path), entry.name, entry.name.split(".")[-1]))
         
         return list_files
         
@@ -178,6 +195,11 @@ class FileCollector:
 def all_filters() -> List[Filter] | List:
     options = Config()
     filters_config = options.get_filters()
+    filter_list = []
     if filters_config != []:
-        return [Filter(name=filter) for filter in filters_config]
-    return []
+        for filter in filters_config:
+            filter = Filter(name=filter)
+            if filter.load():
+                filter_list.append(filter)
+        return filter_list
+    return filter_list
