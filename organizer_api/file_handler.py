@@ -2,7 +2,7 @@ import os
 import pathlib
 import shutil
 from configparser import NoSectionError
-import config_handler as config
+from .config_handler import Config
 from typing import List
 
 
@@ -22,7 +22,7 @@ class Filter:
         self.dir_output = dir_output
 
         
-        self.config = config.Config()
+        self.config = Config()
     
         if self.name is not None and self.is_not_none == False:
             self.load()
@@ -173,3 +173,11 @@ class FileCollector:
     @property
     def files(self) -> List[File]:
         return self.filter_files()
+    
+
+def all_filters() -> List[Filter] | List:
+    options = Config()
+    filters_config = options.get_filters()
+    if filters_config != []:
+        return [Filter(name=filter) for filter in filters_config]
+    return []
