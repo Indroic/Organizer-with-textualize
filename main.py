@@ -32,19 +32,26 @@ class Main(App):
         with TabbedContent(initial="organize"):
             with TabPane(title="Organize", id="organize"):
                 with Vertical():
-                    yield Center(Label("Organize Directory", id="title"))
+                    yield Center(Label("Organize Directory"), id="title")
+                    
                     yield Label("Select Directory to Organize")
+                    
                     yield Input(placeholder="Select a Directory or Write the Path", name="directory_input", id="directory_input")
-                    yield Label("Select Directory",id="directory_validate")
-                    yield FilteredDirectoryTree(path=Path.home())
+                    
+                    yield Label("Select Directory", id="directory_validate")
+                    
+                    yield FilteredDirectoryTree(path=Path.home(), id="directory_selection", name="directory_selection")
+                    
                     yield Label("Select Filter")
+                    
                     yield Select([(filter.name, filter) for filter in all_filters()], id="filters_select")
+                    
                     yield Button(id="organize", label="Organize")
                    
                     
-            with TabPane(title="Config", id="config"):
+            with TabPane(title="Create Filter", id="create_filter"):
                 yield Input()   
-                Button(id="save_config", label="Save")
+                Button(id="save_filter", label="Save")
                 
         
         yield Footer()
